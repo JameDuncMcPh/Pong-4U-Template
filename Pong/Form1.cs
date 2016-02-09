@@ -56,7 +56,7 @@ namespace Pong
         Boolean aKeyDown, zKeyDown, jKeyDown, mKeyDown;
 
         //game winning score
-        int gameWinScore = 7;
+        int gameWinScore = 4;
 
         //brush for paint method
         SolidBrush drawBrush = new SolidBrush(Color.White);
@@ -227,20 +227,20 @@ namespace Pong
 
             #region update paddle positions
 
-            if (aKeyDown == true && paddle1Y > 0)
+            if (aKeyDown == true && paddle1Y > cielingUp)
             {
                 paddle1Y -= PADDLE_SPEED;
             }
-            else if (zKeyDown == true && (paddle1Y + PADDLE_LENGTH) < this.Height)
+            else if (zKeyDown == true && (paddle1Y + PADDLE_LENGTH) < cielingDown)
             {
                 paddle1Y += PADDLE_SPEED;
             }
 
-            if (jKeyDown == true && paddle2Y > 0)
+            if (jKeyDown == true && paddle2Y > cielingUp)
             {
                 paddle2Y -= PADDLE_SPEED;
             }
-            else if (mKeyDown == true && (paddle2Y +PADDLE_LENGTH) < this.Height)
+            else if (mKeyDown == true && (paddle2Y +PADDLE_LENGTH) < cielingDown)
             {
                 paddle2Y += PADDLE_SPEED;
             }
@@ -268,15 +268,30 @@ namespace Pong
             #region ball collision with paddles
 
             if (ballY > paddle1Y && ballY < paddle1Y + PADDLE_LENGTH && ballX < PADDLE_EDGE + PADDLE_WIDTH) // left paddle collision
-            {
-                player.Play();
-                ballMoveRight = true;
-
+            {                
+                if (ballX < PADDLE_EDGE || ballX + BALL_SIZE < PADDLE_EDGE)
+                {
+                    player.Play();
+                    ballMoveRight = false;
+                }
+                else
+                {
+                    player.Play();
+                    ballMoveRight = true;
+                }
             }
             else if (ballY > paddle2Y && ballY < paddle2Y + PADDLE_LENGTH && ballX + BALL_SIZE > this.Width - PADDLE_EDGE - PADDLE_WIDTH / 2) // right paddle collision
             {
-                player.Play();
-                ballMoveRight = false;
+                if (ballX > this.Width - PADDLE_EDGE || ballX + BALL_SIZE > this.Width - PADDLE_EDGE)
+                {
+                    player.Play();
+                    ballMoveRight = true;
+                }
+                else
+                {
+                    player.Play();
+                    ballMoveRight = false;
+                }
             }
 
             #endregion
@@ -335,7 +350,17 @@ namespace Pong
             newGameOk = true;
             startLabel.Visible = true;
             gameUpdateLoop.Enabled = false;
-            startLabel.Text = winner;
+            player1Label.Text = "Player 1:" + " " + Convert.ToString(player1Score);
+            player2Label.Text = "Player 2:" + " " + Convert.ToString(player2Score);
+            if (winner == "player 1")
+            {
+                startLabel.Text = "Player 1 Wins!";
+            }
+            else
+            {
+                startLabel.Text = "Player 2 Wins!";
+            }
+            Refresh();
             Thread.Sleep(2000);
             startLabel.Text = "Do you want to play again? Y/N";
         }
@@ -351,8 +376,8 @@ namespace Pong
             e.Graphics.FillRectangle(drawBrush, PADDLE_EDGE, paddle1Y, PADDLE_WIDTH, PADDLE_LENGTH);
             e.Graphics.FillRectangle(drawBrush, (this.Width - PADDLE_WIDTH - PADDLE_EDGE), paddle2Y, PADDLE_WIDTH, PADDLE_LENGTH);
             e.Graphics.FillRectangle(drawBrush, ballX, ballY, BALL_SIZE, BALL_SIZE);
-            e.Graphics.FillRectangle(drawBrush, 0, cielingUp, 2, 2);
-            e.Graphics.FillRectangle(drawBrush, 0, cielingDown, 2, 2);
+            e.Graphics.FillRectangle(drawBrush, 0, cielingUp, this.Width, 2);
+            e.Graphics.FillRectangle(drawBrush, 0, cielingDown, this.Width, 2);
         }
 
     }
